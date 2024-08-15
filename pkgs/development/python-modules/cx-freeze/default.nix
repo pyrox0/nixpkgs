@@ -5,6 +5,7 @@
   pythonOlder,
   ncurses,
   setuptools,
+  distutils,
   filelock,
   typing-extensions,
   wheel,
@@ -13,7 +14,7 @@
 
 buildPythonPackage rec {
   pname = "cx-freeze";
-  version = "7.1.1";
+  version = "7.2.0";
   pyproject = true;
 
   disabled = pythonOlder "3.8";
@@ -21,7 +22,7 @@ buildPythonPackage rec {
   src = fetchPypi {
     pname = "cx_freeze";
     inherit version;
-    hash = "sha256-M1wwutDj5lNlXyMJkzCEWL7cmXuvW3qZXoZB3rousoc=";
+    hash = "sha256-xX9xAbTTUTJGSx7IjLiUjDt8W07OS7NUwWCRWJyzNYM=";
   };
 
   pythonRelaxDeps = [
@@ -31,22 +32,23 @@ buildPythonPackage rec {
 
   build-system = [
     setuptools
+    distutils
     wheel
   ];
 
-  buildInputs = [
-    ncurses
-  ];
+  buildInputs = [ ncurses ];
 
   dependencies = [
     filelock
     setuptools
-  ] ++ lib.optionals (pythonOlder "3.10") [
-    typing-extensions
-  ];
+    distutils
+  ] ++ lib.optionals (pythonOlder "3.10") [ typing-extensions ];
 
   postPatch = ''
     sed -i /patchelf/d pyproject.toml
+    # pythonRelaxDeps does not work
+    substituteInPlace pyproject.toml \
+      --replace-fail "setuptools>=65.6.3,<71" "setuptools"
   '';
 
   makeWrapperArgs = [
