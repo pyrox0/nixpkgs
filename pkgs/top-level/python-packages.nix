@@ -11440,6 +11440,8 @@ self: super: with self; {
 
   pyerfa = callPackage ../development/python-modules/pyerfa { };
 
+  pyevermizer = callPackage ../development/python-modules/pyevermizer { };
+
   pyevmasm = callPackage ../development/python-modules/pyevmasm { };
 
   pyevilgenius = callPackage ../development/python-modules/pyevilgenius { };
