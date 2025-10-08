@@ -172,6 +172,22 @@ lib.makeScope
         gawk = gawk-mes;
       };
 
+      # gcc-latest-wrapper = callPackage ./gcc/latest-wrapper.nix {
+      #   gcc = gcc-latest;
+      # };
+      #
+      gcc-glibc = callPackage ./gcc/glibc.nix {
+        gcc = gcc-latest;
+        gnumake = gnumake-static;
+        gnutar = gnutar-static;
+        gawk = gawk-static;
+        binutils = binutils-static;
+        diffutils = diffutils-static;
+        findutils = findutils-static;
+        gnused = gnused-static;
+        gzip = gzip-static;
+      };
+
       glibc = callPackage ./glibc {
         gcc = gcc-latest;
         gnumake = gnumake-musl;
