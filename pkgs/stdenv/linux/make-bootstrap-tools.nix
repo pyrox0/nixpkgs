@@ -83,6 +83,8 @@ rec {
       ;
   };
 
+  build-minimal = pkgs.callPackage ./minimal-stdenv-bootstrap-tools.nix { };
+
   inherit (build) bootstrapFiles;
 
   bootstrapTools = import ./bootstrap-tools {
