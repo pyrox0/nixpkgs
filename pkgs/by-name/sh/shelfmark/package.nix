@@ -53,10 +53,20 @@ stdenv.mkDerivation (finalAttrs: {
     hash = "sha256-Fe7zu51gFG2QgcBWcGkFi64CdZW4ohZg+7jdmeMFVLI=";
   };
 
+  postPatch = ''
+    substituteInPlace shelfmark/bypass/internal_bypasser.py \
+      --replace-fail 'enable-unsafe-swiftshader' 'disable-gpu'
+  '';
+
   nativeBuildInputs = [
     python3Packages.wrapPython
     makeWrapper
   ];
+
+  env = {
+    RELEASE_VERSION = finalAttrs.src.tag;
+    BUILD_VERSION = finalAttrs.src.tag;
+  };
 
   pythonPath = pythonDeps;
 
