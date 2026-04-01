@@ -78,45 +78,39 @@ in
         ExecStart = "${lib.getExe cfg.package} -b ${cfg.environment.FLASK_HOST}:${cfg.environment.FLASK_PORT}";
         StateDirectory = "shelfmark";
 
-        ProtectSystem = "strict";
-        ProtectHome = true;
-        PrivateTmp = true;
-        PrivateDevices = true;
-        PrivateMounts = true;
-        ProtectControlGroups = true;
-        ProtectKernelTunables = true;
-        RestrictSUIDSGID = true;
-        RemoveIPC = true;
-        UMask = "0077";
-
-        CapabilityBoundingSet = [ "" ];
-        NoNewPrivileges = true;
-
-        ProtectKernelModules = true;
-        ProtectKernelLogs = true;
-        ProtectClock = true;
-        SystemCallArchitectures = "native";
-        SystemCallFilter = [
-          "@system-service"
-          "~@privileged"
-          "~@resources"
-        ];
-
-        RestrictAddressFamilies = [
-          "AF_INET"
-          "AF_INET6"
-          "AF_UNIX"
-        ];
-
-        PrivateUsers = true;
-
-        LockPersonality = true;
-        ProtectHostname = true;
-        RestrictRealtime = true;
-        RestrictNamespaces = true;
-        ProtectProc = "invisible";
-        ProcSubset = "pid";
-        DeviceAllow = [ "" ];
+        # ProtectSystem = "strict";
+        # ProtectHome = true;
+        # PrivateTmp = true;
+        # PrivateDevices = true;
+        # PrivateMounts = true;
+        # ProtectControlGroups = true;
+        # ProtectKernelTunables = true;
+        # RestrictSUIDSGID = true;
+        # RemoveIPC = true;
+        # UMask = "0077";
+        #
+        # CapabilityBoundingSet = [ "CAP_SYS_NICE" ];
+        # AmbientCapabilities = [ "CAP_SYS_NICE" ];
+        # NoNewPrivileges = true;
+        #
+        # ProtectKernelModules = true;
+        # ProtectKernelLogs = true;
+        # ProtectClock = true;
+        #
+        # RestrictAddressFamilies = [
+        #   "AF_INET"
+        #   "AF_INET6"
+        #   "AF_UNIX"
+        # ];
+        #
+        # PrivateUsers = true;
+        #
+        # LockPersonality = true;
+        # ProtectHostname = true;
+        # RestrictNamespaces = true;
+        # ProtectProc = "invisible";
+        # ProcSubset = "pid";
+        # DeviceAllow = [ "" ];
       };
     };
 
