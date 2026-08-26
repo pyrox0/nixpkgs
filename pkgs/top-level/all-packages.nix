@@ -10883,4 +10883,6 @@ with pkgs;
   };
 
   feishin-web = feishin.override { webVersion = true; };
+
+  buildJellyfinPlugin = callPackage ../build-support/build-jellyfin-plugin { };
 }
