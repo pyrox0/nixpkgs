@@ -65,9 +65,22 @@
   gtk3,
   glib,
 
+  jdkBootstrapPackages,
   jdk-bootstrap ?
-    javaPackages.compiler.temurin-bin."jdk-${featureVersion}".__spliced.buildBuild
-      or javaPackages.compiler.temurin-bin."jdk-${featureVersion}",
+    {
+      "8" = jdkBootstrapPackages.icedtea_7.__spliced.buildBuild or jdkBootstrapPackages.icedtea_7;
+    }
+    .${featureVersion} or (
+      if lib.versionAtLeast featureVersion "9" then
+        let
+          bootstrapVer = toString ((lib.toInt featureVersion) - 1);
+        in
+        javaPackages.compiler."openjdk${bootstrapVer}"
+      else
+        (javaPackages.compiler.temurin-bin."jdk-${featureVersion}".__spliced.buildBuild
+          or javaPackages.compiler.temurin-bin."jdk-${featureVersion}"
+        )
+    ),
 }:
 
 assert lib.assertMsg (enableGtk -> lib.versionAtLeast featureVersion "11")
@@ -151,12 +164,20 @@ let
       }
       .${stdenv.system} or (throw "Unsupported platform ${stdenv.system}");
 
-  jdk-bootstrap' = jdk-bootstrap.override {
-    # when building a headless jdk, also bootstrap it with a headless jdk
-    gtkSupport = !headless;
-    # its trust store is never used, and regenerating it would rebuild OpenJDK
-    regenerateCacerts = false;
-  };
+  baseJvmFeatures = [
+    "compiler1"
+    "jvmti"
+    "jni-check"
+    "services"
+    "cds"
+  ];
+
+  jvmFeatures =
+    {
+      "9" = baseJvmFeatures;
+      "10" = baseJvmFeatures;
+    }
+    .${featureVersion};
 in
 
 assert lib.assertMsg (lib.pathExists sourceFile)
@@ -272,7 +293,7 @@ stdenv.mkDerivation (finalAttrs: {
     "NM=${stdenv.cc.targetPrefix}nm"
     "OBJDUMP=${stdenv.cc.targetPrefix}objdump"
     "OBJCOPY=${stdenv.cc.targetPrefix}objcopy"
-    "--with-boot-jdk=${jdk-bootstrap'.home}"
+    "--with-boot-jdk=${jdk-bootstrap}"
     "--enable-unlimited-crypto"
     "--with-native-debug-symbols=internal"
     "--with-stdc++lib=dynamic"
@@ -352,7 +373,7 @@ stdenv.mkDerivation (finalAttrs: {
       mkdir "$NIX_BUILD_TOP/cacerts-gen"
       pushd "$NIX_BUILD_TOP/cacerts-gen"
       JAVA_TOOL_OPTIONS="-Dkeystore.pkcs12.certProtectionAlgorithm=NONE -Dkeystore.pkcs12.macAlgorithm=NONE" \
-        ${jre-generate-cacerts} ${jdk-bootstrap'.home}/bin/keytool ${cacert}/etc/ssl/certs/ca-bundle.crt
+        ${jre-generate-cacerts} ${jdk-bootstrap.home}/bin/keytool ${cacert}/etc/ssl/certs/ca-bundle.crt
       popd
       configureFlags+=("--with-cacerts-file=$NIX_BUILD_TOP/cacerts-gen/cacerts")
     '';
@@ -548,12 +569,12 @@ stdenv.mkDerivation (finalAttrs: {
     autoPatchelf -- $jre
   '';
 
-  disallowedReferences = [ jdk-bootstrap' ];
+  disallowedReferences = [ jdk-bootstrap ];
 
   passthru = {
     home = "${finalAttrs.finalPackage}/lib/openjdk";
     # Shouldn't this be `jdk-bootstrap = jdk-bootstrap'`?
-    inherit jdk-bootstrap;
+    inherit jdk-bootstrap isBootstrap;
     inherit (source) updateScript;
   }
   // lib.optionalAttrs atLeast11 { inherit gtk3; }
