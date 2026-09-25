@@ -29,12 +29,12 @@ in
           mergeMetaPlatforms darwin linux;
 
       mkOpenjdk =
-        featureVersion:
+        featureVersion: isBootstrap:
         let
           openjdkLinux =
             (callPackage ../development/compilers/openjdk/generic.nix (
               {
-                inherit featureVersion;
+                inherit featureVersion isBootstrap;
               }
               // lib.optionalAttrs (lib.versionOlder featureVersion "11") {
                 enableGtk = false;
@@ -62,11 +62,12 @@ in
       corretto21 = mkCorretto "21";
       corretto25 = mkCorretto "25";
 
-      openjdk8 = mkOpenjdk "8";
-      openjdk11 = mkOpenjdk "11";
-      openjdk17 = mkOpenjdk "17";
-      openjdk21 = mkOpenjdk "21";
-      openjdk25 = mkOpenjdk "25";
+      openjdk8 = mkOpenjdk "8" false;
+      openjdk9 = mkOpenjdk "9" true;
+      openjdk11 = mkOpenjdk "11" false;
+      openjdk17 = mkOpenjdk "17" false;
+      openjdk21 = mkOpenjdk "21" false;
+      openjdk25 = mkOpenjdk "25" false;
 
       # Legacy aliases
       openjdk8-bootstrap = temurin-bin.jdk-8;

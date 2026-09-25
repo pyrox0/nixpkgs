@@ -29,8 +29,7 @@
       path = ./11;
     }
     {
-      atLeast = "8";
-      before = "11";
+      only = "8";
       path = ./8;
     }
   ];
@@ -45,7 +44,7 @@
       path = ./11;
     }
     {
-      before = "11";
+      only = "8";
       path = ./8;
     }
   ];
@@ -56,6 +55,7 @@
       path = ./11;
     }
     {
+      atLeast = "8";
       before = "11";
       path = ./8;
     }
@@ -94,14 +94,14 @@
       path = ./11;
     }
     {
-      before = "11";
+      only = "8";
       path = ./8;
     }
   ];
   "wformat-fix.patch" = [
     {
       atLeast = "17";
-      before = "22";
+      before = "21";
       func = fetchurl {
         url = "https://src.fedoraproject.org/rpms/java-openjdk/raw/06c001c7d87f2e9fe4fedeef2d993bcd5d7afa2a/f/rh1673833-remove_removal_of_wformat_during_test_compilation.patch";
         sha256 = "082lmc30x64x583vqq00c8y0wqih3y4r0mp1c4bqq36l22qv6b6r";
@@ -123,12 +123,20 @@
       path = ./25;
     }
     {
-      atLeast = "11";
+      atLeast = "9";
       before = "25";
       func = fetchpatch {
-        name = "gnumake-4.4.1";
         url = "https://github.com/openjdk/jdk/commit/9341d135b855cc208d48e47d30cd90aafa354c36.patch";
         hash = "sha256-Qcm3ZmGCOYLZcskNjj7DYR85R4v07vYvvavrVOYL8vg=";
+      };
+    }
+  ];
+  "make-4.3.patch" = [
+    {
+      only = "9";
+      func = fetchurl {
+        url = "https://gitlab.alpinelinux.org/alpine/aports/-/raw/3.18-stable/community/openjdk9/make-4.3.patch";
+        hash = "sha256-XscdQ2ri8fjkxF71tYkpW//Y16oPXjrhT7NW838Ttig=";
       };
     }
   ];
@@ -136,6 +144,69 @@
     {
       only = "11";
       path = ./11;
+    }
+  ];
+  "fix-pointer-comparison.patch" = [
+    {
+      only = "9";
+      path = ./9;
+    }
+  ];
+  "fix-missing-include.patch" = [
+    {
+      only = "9";
+      path = ./9;
+    }
+  ];
+  "gcc10-compilation-fix.patch" = [
+    {
+      only = "9";
+      func = fetchpatch {
+        url = "https://gitlab.alpinelinux.org/alpine/aports/-/raw/3.17-stable/community/openjdk9/gcc10-compilation-fix.patch";
+        hash = "sha256-/ZmWc2act19Cp2+aFxtDaJfnHQqTI1spyIjangYf5oc=";
+      };
+    }
+  ];
+  "fix-c1.patch" = [
+    {
+      only = "9";
+      func = fetchpatch {
+        url = "https://gitlab.alpinelinux.org/alpine/aports/-/raw/3.17-stable/community/openjdk9/JDK-8245051.patch";
+        hash = "sha256-Ch3kkLoVc0UAw+K++jJeTsMtd0CxMN7RJv05Xh0Xf8k=";
+      };
+    }
+  ];
+  "glibc-2.34-stackguardpages-test.patch" = [
+    {
+      only = "9";
+      func = fetchpatch {
+        url = "https://github.com/openjdk/jdk/commit/f77a1a156f3da9068d012d9227c7ee0fee58f571.patch";
+        stripLen = 4;
+        extraPrefix = "hotspot/test/";
+        hunks = [ "2-" ];
+        hash = "sha256-qpYKM5f/UEVtlLuw8LM6sKwoy9h7QV2xC1SK6rq0tOY=";
+      };
+    }
+  ];
+  # Old JDKs do not check compiler versions with more than 2 major version digits(i.e gcc 10.x.x) correctly, which generates warnings.
+  "fix-gcc-version-check.patch" = [
+    {
+      only = "9";
+      func = fetchurl {
+        name = "fix-gcc-version-check.patch";
+        url = "https://raw.githubusercontent.com/Jaguarlinux/jaguar-packages/1f38eb0fc9dafaa71e96d86740c277b1637023e5/srcpkgs/openjdk9-bootstrap/patches/fix-compiler-version-10%2B.patch";
+        hash = "sha256-Zlxty8wC9YepzdGJJ96qpMZI9cPl9+G70W0pQXBuiW4=";
+      };
+    }
+  ];
+  # We encounter the same issue with the boot jdk version check
+  "fix-bootjdk-version-check.patch" = [
+    {
+      only = "9";
+      func = fetchurl {
+        url = "https://gitlab.alpinelinux.org/alpine/aports/-/raw/3.18-stable/community/openjdk9/fix-bootjdk-check.patch";
+        hash = "sha256-dlFdXEqLXODz0JuZqzUbRt1vYi3DPYX/kmge8M6/WO0=";
+      };
     }
   ];
 }

@@ -64,7 +64,6 @@
   enableGtk ? true,
   gtk3,
   glib,
-
   jdkBootstrapPackages,
   jdk-bootstrap ?
     {
@@ -81,6 +80,10 @@
           or javaPackages.compiler.temurin-bin."jdk-${featureVersion}"
         )
     ),
+
+  # Set if this is a bootstrap JDK, which are not shown in search since we don't
+  # want users to be using them.
+  isBootstrap ? false,
 }:
 
 assert lib.assertMsg (enableGtk -> lib.versionAtLeast featureVersion "11")
@@ -100,6 +103,7 @@ let
   # Note this is inclusive at low end and exclusive at top end, so 8 would match the above example, but 11 will not.
   between = old: new: (atLeast old) && (lib.versionOlder featureVersion new);
 
+  is8 = featureVersion == "8";
   atLeast11 = atLeast "11";
   atLeast17 = atLeast "17";
   atLeast21 = atLeast "21";
@@ -146,9 +150,12 @@ let
   # should concat to this list below instead
   patchesForVersion = lib.concatAttrValues (builtins.mapAttrs findApplicable allPatches);
 
-  tagPrefix = if atLeast11 then "jdk-" else "jdk";
+  # bootstrap JDKs always use `jdk-` as their prefix
+  tagPrefix = if (atLeast11 || isBootstrap) then "jdk-" else "jdk";
   version = lib.removePrefix "refs/tags/${tagPrefix}" source.src.rev;
-  versionSplit = builtins.match (if atLeast11 then "(.+)+(.+)" else "(.+)-b(.+)") version;
+  versionSplit = builtins.match (
+    if (atLeast11 || isBootstrap) then "(.+)+(.+)" else "(.+)-b(.+)"
+  ) version;
   versionBuild = lib.elemAt versionSplit 1;
 
   # The JRE 8 libraries are in directories that depend on the CPU.
@@ -203,7 +210,6 @@ stdenv.mkDerivation (finalAttrs: {
         if atLeast17 then ./17/patches/swing-use-gtk-jdk13.patch else ./11/patches/swing-use-gtk-jdk10.patch
       )
     ];
-
   strictDeps = true;
 
   depsBuildBuild = [ buildPackages.stdenv.cc ];
@@ -315,8 +321,15 @@ stdenv.mkDerivation (finalAttrs: {
         "--with-version-pre="
       ]
     else
+      let
+        updateVersion =
+          if !isBootstrap then
+            lib.removePrefix "${featureVersion}u" (lib.elemAt versionSplit 0)
+          else
+            lib.removePrefix "jdk-${featureVersion}+" version;
+      in
       [
-        "--with-update-version=${lib.removePrefix "${featureVersion}u" (lib.elemAt versionSplit 0)}"
+        "--with-update-version=${updateVersion}"
         "--with-build-number=${versionBuild}"
         "--with-milestone=fcs"
       ]
@@ -346,8 +359,13 @@ stdenv.mkDerivation (finalAttrs: {
   # b7e68243306833845cbf92e2ea1e0cf782481a51 which removed it for
   # versions 15 through 20.
   ++ lib.optional ((is "11" || is "21") && stdenv.hostPlatform.isx86_64) "--with-jvm-features=zgc"
-  ++ lib.optional headless (if atLeast11 then "--enable-headless-only" else "--disable-headful")
-  ++ lib.optional (!headless && enableJavaFX) "--with-import-modules=${openjfx_jdk}";
+  ++ lib.optional headless (if !is8 then "--enable-headless-only" else "--disable-headful")
+  ++ lib.optional (!headless && enableJavaFX) "--with-import-modules=${openjfx_jdk}"
+  ++ lib.optional (!is8) "--disable-aot"
+  ++ lib.optionals isBootstrap [
+    "--with-jvm-variants=custom"
+    "--with-jvm-features=compiler1,jvmti,fprof,jni-check,services,management,nmt,cds"
+  ];
 
   buildFlags = if atLeast17 then [ "images" ] else [ "all" ];
 
@@ -413,9 +431,13 @@ stdenv.mkDerivation (finalAttrs: {
             "-Wno-error=int-conversion"
             "-Wno-error=incompatible-pointer-types"
           ]
-          ++ lib.optionals (stdenv.cc.isGNU && is "8") [
+          ++ lib.optionals (stdenv.cc.isGNU && !atLeast11) [
             # Fix build with gcc15
             "-std=gnu17"
+          ]
+          ++ lib.optionals isBootstrap [
+            "-Wno-zero-as-null-pointer-constant"
+            "-fno-strict-aliasing"
           ]
         );
 
