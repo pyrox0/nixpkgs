@@ -56,7 +56,7 @@
     }
     {
       atLeast = "8";
-      before = "11";
+      before = "10";
       path = ./8;
     }
   ];
@@ -149,7 +149,10 @@
   "fix-pointer-comparison.patch" = [
     {
       only = "9";
-      path = ./9;
+      func = fetchurl {
+        url = "https://codeberg.org/guix/guix/raw/commit/3a0d265d403ff13c1082d07b8f0205771ac412b9/gnu/packages/patches/openjdk-9-pointer-comparison.patch";
+        hash = "sha256-8rKhrfP4mYRA3feYk202Iguiy1WbZu4kUs2pUA9e9Co=";
+      };
     }
   ];
   "fix-missing-include.patch" = [
@@ -161,9 +164,9 @@
   "gcc10-compilation-fix.patch" = [
     {
       only = "9";
-      func = fetchpatch {
+      func = fetchurl {
         url = "https://gitlab.alpinelinux.org/alpine/aports/-/raw/3.17-stable/community/openjdk9/gcc10-compilation-fix.patch";
-        hash = "sha256-/ZmWc2act19Cp2+aFxtDaJfnHQqTI1spyIjangYf5oc=";
+        hash = "sha256-QXJ/9NqbDx3T0jmypAdCeflIrbb0szY5l6UKyHQgt0s=";
       };
     }
   ];
@@ -188,24 +191,12 @@
       };
     }
   ];
-  # Old JDKs do not check compiler versions with more than 2 major version digits(i.e gcc 10.x.x) correctly, which generates warnings.
-  "fix-gcc-version-check.patch" = [
+  "fix-setsignalhandler.patch" = [
     {
-      only = "9";
+      only = "10";
       func = fetchurl {
-        name = "fix-gcc-version-check.patch";
-        url = "https://raw.githubusercontent.com/Jaguarlinux/jaguar-packages/1f38eb0fc9dafaa71e96d86740c277b1637023e5/srcpkgs/openjdk9-bootstrap/patches/fix-compiler-version-10%2B.patch";
-        hash = "sha256-Zlxty8wC9YepzdGJJ96qpMZI9cPl9+G70W0pQXBuiW4=";
-      };
-    }
-  ];
-  # We encounter the same issue with the boot jdk version check
-  "fix-bootjdk-version-check.patch" = [
-    {
-      only = "9";
-      func = fetchurl {
-        url = "https://gitlab.alpinelinux.org/alpine/aports/-/raw/3.18-stable/community/openjdk9/fix-bootjdk-check.patch";
-        hash = "sha256-dlFdXEqLXODz0JuZqzUbRt1vYi3DPYX/kmge8M6/WO0=";
+        url = "https://codeberg.org/guix/guix/raw/commit/3a0d265d403ff13c1082d07b8f0205771ac412b9/gnu/packages/patches/openjdk-10-setsignalhandler.patch";
+        hash = "sha256-Zydh8WqNOP1g7dChAQ84v3b2wiXf03215eB3hIv3J3Y=";
       };
     }
   ];

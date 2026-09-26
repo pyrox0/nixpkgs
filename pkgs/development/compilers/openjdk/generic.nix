@@ -197,7 +197,7 @@ stdenv.mkDerivation (finalAttrs: {
   outputs = [
     "out"
   ]
-  ++ lib.optionals (!atLeast11) [
+  ++ lib.optionals (lib.versionOlder featureVersion "9") [
     "jre"
   ];
 
@@ -478,7 +478,9 @@ stdenv.mkDerivation (finalAttrs: {
 
   installPhase = ''
     mkdir -p $out/lib
-    mv build/*/images/${if atLeast11 then "jdk" else "j2sdk-image"} $out/lib/openjdk
+    mv build/*/images/${
+      if lib.versionAtLeast featureVersion "9" then "jdk" else "j2sdk-image"
+    } $out/lib/openjdk
   ''
   # Remove some broken manpages.
   + ''
@@ -508,7 +510,7 @@ stdenv.mkDerivation (finalAttrs: {
       rm -rf $out/lib/openjdk/sample
     ''
     + lib.optionalString headless (
-      if atLeast11 then
+      if lib.versionAtLeast featureVersion "9" then
         ''
           rm $out/lib/openjdk/lib/{libjsound,libfontmanager}.so
         ''
@@ -520,7 +522,7 @@ stdenv.mkDerivation (finalAttrs: {
         ''
     )
   )
-  + lib.optionalString (!atLeast11) (
+  + lib.optionalString (lib.versionOlder featureVersion "9") (
     # Move the JRE to a separate output
     ''
       mkdir -p $jre/lib/openjdk
@@ -575,7 +577,7 @@ stdenv.mkDerivation (finalAttrs: {
     # Propagate the setJavaClassPath setup hook from the JRE so that
     # any package that depends on the JRE has $CLASSPATH set up
     # properly.
-    + lib.optionalString (!atLeast11) ''
+    + lib.optionalString (lib.versionOlder featureVersion "9") ''
       mkdir -p $jre/nix-support
       printWords "${setJavaClassPath}" > $jre/nix-support/propagated-build-inputs
     '';
@@ -587,7 +589,7 @@ stdenv.mkDerivation (finalAttrs: {
   postFixup = ''
     autoPatchelf -- $out
   ''
-  + lib.optionalString (!atLeast11) ''
+  + lib.optionalString (lib.versionOlder featureVersion "9") ''
     autoPatchelf -- $jre
   '';
 
