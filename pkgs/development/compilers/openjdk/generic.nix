@@ -391,6 +391,10 @@ stdenv.mkDerivation (finalAttrs: {
       ++ [
         "--with-version-pre="
       ]
+    else if isBootstrap then
+      [
+        "--with-version-string=${version}"
+      ]
     else
       let
         updateVersion =
