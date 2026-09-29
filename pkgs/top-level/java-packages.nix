@@ -58,6 +58,7 @@ in
 
       openjdk8 = mkOpenjdk "8" false;
       openjdk9 = mkOpenjdk "9" true;
+      openjdk10 = mkOpenjdk "10" true;
       openjdk11 = mkOpenjdk "11" false;
       openjdk17 = mkOpenjdk "17" false;
       openjdk21 = mkOpenjdk "21" false;

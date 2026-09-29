@@ -77,10 +77,14 @@
   temurin-bin-25,
   openjdk8,
   jdkBootstrapPackages,
+  javaPackages,
   jdk-bootstrap ?
     {
       "8" = jdkBootstrapPackages.icedtea_7.__spliced.buildBuild or jdkBootstrapPackages.icedtea_7;
       "9" = openjdk8.__spliced.buildBuild or openjdk8;
+      "10" =
+        javaPackages.compiler.openjdk9.headless.__spliced.buildBuild
+          or javaPackages.compiler.openjdk9.headless;
       "11" = temurin-bin-11.__spliced.buildBuild or temurin-bin-11;
       "17" = temurin-bin-17.__spliced.buildBuild or temurin-bin-17;
       "21" = temurin-bin-21.__spliced.buildBuild or temurin-bin-21;
@@ -135,6 +139,20 @@ let
     # when building a headless jdk, also bootstrap it with a headless jdk
     enableGtk = !headless;
   };
+
+  baseJvmFeatures = [
+    "compiler1"
+    "jvmti"
+    "jni-check"
+    "services"
+    "cds"
+  ];
+  jvmFeatures =
+    {
+      "9" = baseJvmFeatures;
+      "10" = baseJvmFeatures;
+    }
+    .${featureVersion};
 in
 
 assert lib.assertMsg (lib.pathExists sourceFile)
@@ -181,12 +199,10 @@ stdenv.mkDerivation (finalAttrs: {
       ]
       ++ lib.optionals (!atLeast23) [
         (
-          if atLeast11 then
-            ./11/patches/currency-date-range-jdk10.patch
-          else if lib.versionOlder featureVersion "10" then
+          if lib.versionOlder featureVersion "10" then
             ./8/patches/currency-date-range-jdk8.patch
           else
-            null
+            ./11/patches/currency-date-range-jdk10.patch
         )
       ]
       ++ lib.optionals atLeast11 [
@@ -255,9 +271,21 @@ stdenv.mkDerivation (finalAttrs: {
       ++ lib.optionals (featureVersion == "11") [
         ./11/patches/fix-oopdesc-ptr-alignment-ub.patch
       ]
+      ++ lib.optionals ((lib.versionOlder featureVersion "11") && (!is8)) [
+        ./9/patches/fix-gnumake-43.patch
+      ]
+      ++ lib.optionals (featureVersion == "10") [
+        ./10/patches/fix-pointer-comparison.patch
+        ./10/patches/fix-missing-include.patch
+        ./10/patches/jdk10-setsignalhandler.patch
+        (fetchpatch {
+          name = "gcc10-compilation-fix.patch";
+          url = "https://gitlab.alpinelinux.org/alpine/aports/-/raw/3.18-stable/community/openjdk10/gcc10-compilation-fix.patch";
+          hash = "sha256-JKTxG69prNDHzT9U4UevG2tu0L9ktkcP+z/T4nNBogM=";
+        })
+      ]
       ++ lib.optionals (featureVersion == "9") [
         ./9/patches/fix-missing-include.patch
-        ./9/patches/fix-gnumake-43.patch
         ./9/patches/fix-pointer-comparison.patch
         (fetchpatch {
           name = "gcc10-compilation-fix.patch";
@@ -441,7 +469,7 @@ stdenv.mkDerivation (finalAttrs: {
   ++ lib.optional (!is8) "--disable-aot"
   ++ lib.optionals isBootstrap [
     "--with-jvm-variants=custom"
-    "--with-jvm-features=compiler1,jvmti,fprof,jni-check,services,management,nmt,cds"
+    "--with-jvm-features=${lib.concatStringsSep "," jvmFeatures}"
   ];
 
   buildFlags = if atLeast17 then [ "images" ] else [ "all" ];
