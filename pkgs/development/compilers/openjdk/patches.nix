@@ -55,6 +55,10 @@
       path = ./11;
     }
     {
+      only = "10";
+      path = ./10;
+    }
+    {
       atLeast = "8";
       before = "10";
       path = ./8;
@@ -133,7 +137,8 @@
   ];
   "make-4.3.patch" = [
     {
-      only = "9";
+      atLeast = "9";
+      before = "11";
       func = fetchurl {
         url = "https://gitlab.alpinelinux.org/alpine/aports/-/raw/3.18-stable/community/openjdk9/make-4.3.patch";
         hash = "sha256-XscdQ2ri8fjkxF71tYkpW//Y16oPXjrhT7NW838Ttig=";
@@ -148,6 +153,13 @@
   ];
   "fix-pointer-comparison.patch" = [
     {
+      only = "10";
+      func = fetchurl {
+        url = "https://codeberg.org/guix/guix/raw/commit/3a0d265d403ff13c1082d07b8f0205771ac412b9/gnu/packages/patches/openjdk-10-pointer-comparison.patch";
+        hash = "sha256-gi6AhgWMJFKhzegpta2r0ePDqer6+ACQSapw45EcALE=";
+      };
+    }
+    {
       only = "9";
       func = fetchurl {
         url = "https://codeberg.org/guix/guix/raw/commit/3a0d265d403ff13c1082d07b8f0205771ac412b9/gnu/packages/patches/openjdk-9-pointer-comparison.patch";
@@ -156,6 +168,10 @@
     }
   ];
   "fix-missing-include.patch" = [
+    {
+      only = "10";
+      path = ./10;
+    }
     {
       only = "9";
       path = ./9;
@@ -167,6 +183,13 @@
       func = fetchurl {
         url = "https://gitlab.alpinelinux.org/alpine/aports/-/raw/3.17-stable/community/openjdk9/gcc10-compilation-fix.patch";
         hash = "sha256-QXJ/9NqbDx3T0jmypAdCeflIrbb0szY5l6UKyHQgt0s=";
+      };
+    }
+    {
+      only = "10";
+      func = fetchurl {
+        url = "https://gitlab.alpinelinux.org/alpine/aports/-/raw/3.18-stable/community/openjdk10/gcc10-compilation-fix.patch";
+        hash = "sha256-z8MgaqN6YQWiTINEbusjIdytBrk91MPFBk0wpdhoCBA=";
       };
     }
   ];

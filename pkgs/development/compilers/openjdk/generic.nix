@@ -70,11 +70,11 @@
       "8" = jdkBootstrapPackages.icedtea_7.__spliced.buildBuild or jdkBootstrapPackages.icedtea_7;
     }
     .${featureVersion} or (
-      if lib.versionAtLeast featureVersion "9" then
+      if lib.versionOlder featureVersion "12" then
         let
           bootstrapVer = toString ((lib.toInt featureVersion) - 1);
         in
-        javaPackages.compiler."openjdk${bootstrapVer}"
+        javaPackages.compiler."openjdk${bootstrapVer}".headless
       else
         (javaPackages.compiler.temurin-bin."jdk-${featureVersion}".__spliced.buildBuild
           or javaPackages.compiler.temurin-bin."jdk-${featureVersion}"
@@ -178,7 +178,6 @@ let
     "services"
     "cds"
   ];
-
   jvmFeatures =
     {
       "9" = baseJvmFeatures;
@@ -368,7 +367,7 @@ stdenv.mkDerivation (finalAttrs: {
   ++ lib.optional (!is8) "--disable-aot"
   ++ lib.optionals isBootstrap [
     "--with-jvm-variants=custom"
-    "--with-jvm-features=compiler1,jvmti,fprof,jni-check,services,management,nmt,cds"
+    "--with-jvm-features=${lib.concatStringsSep "," jvmFeatures}"
   ];
 
   buildFlags = if atLeast17 then [ "images" ] else [ "all" ];
