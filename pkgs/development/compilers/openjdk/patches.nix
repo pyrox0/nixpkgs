@@ -93,8 +93,7 @@
       path = ./17;
     }
     {
-      atLeast = "11";
-      before = "17";
+      only = "11";
       path = ./11;
     }
     {
@@ -137,6 +136,14 @@
   ];
   "make-4.3.patch" = [
     {
+      atLeast = "12";
+      before = "17";
+      func = fetchurl {
+        url = "https://gitlab.alpinelinux.org/alpine/aports/-/raw/3.18-stable/community/openjdk9/make-4.3.patch";
+        hash = "sha256-XscdQ2ri8fjkxF71tYkpW//Y16oPXjrhT7NW838Ttig=";
+      };
+    }
+    {
       atLeast = "9";
       before = "11";
       func = fetchurl {
@@ -169,6 +176,10 @@
   ];
   "fix-missing-include.patch" = [
     {
+      only = "12";
+      path = ./12;
+    }
+    {
       only = "10";
       path = ./10;
     }
@@ -179,10 +190,10 @@
   ];
   "gcc10-compilation-fix.patch" = [
     {
-      only = "9";
+      only = "12";
       func = fetchurl {
-        url = "https://gitlab.alpinelinux.org/alpine/aports/-/raw/3.17-stable/community/openjdk9/gcc10-compilation-fix.patch";
-        hash = "sha256-QXJ/9NqbDx3T0jmypAdCeflIrbb0szY5l6UKyHQgt0s=";
+        url = "https://gitlab.alpinelinux.org/alpine/aports/-/raw/3.18-stable/community/openjdk12/gcc10-compilation-fix.patch";
+        hash = "sha256-6TIOqByhRmbucR7ojFjTEU6pEn0HnCLxLPCeaoxFyAA=";
       };
     }
     {
@@ -190,6 +201,13 @@
       func = fetchurl {
         url = "https://gitlab.alpinelinux.org/alpine/aports/-/raw/3.18-stable/community/openjdk10/gcc10-compilation-fix.patch";
         hash = "sha256-z8MgaqN6YQWiTINEbusjIdytBrk91MPFBk0wpdhoCBA=";
+      };
+    }
+    {
+      only = "9";
+      func = fetchurl {
+        url = "https://gitlab.alpinelinux.org/alpine/aports/-/raw/3.17-stable/community/openjdk9/gcc10-compilation-fix.patch";
+        hash = "sha256-QXJ/9NqbDx3T0jmypAdCeflIrbb0szY5l6UKyHQgt0s=";
       };
     }
   ];
@@ -221,6 +239,12 @@
         url = "https://codeberg.org/guix/guix/raw/commit/3a0d265d403ff13c1082d07b8f0205771ac412b9/gnu/packages/patches/openjdk-10-setsignalhandler.patch";
         hash = "sha256-Zydh8WqNOP1g7dChAQ84v3b2wiXf03215eB3hIv3J3Y=";
       };
+    }
+  ];
+  "compilation-fixes.patch" = [
+    {
+      only = "12";
+      path = ./12;
     }
   ];
 }

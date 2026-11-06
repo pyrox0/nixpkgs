@@ -36,7 +36,7 @@ in
               {
                 inherit featureVersion isBootstrap;
               }
-              // lib.optionalAttrs (lib.versionOlder featureVersion "11") {
+              // lib.optionalAttrs ((lib.versionOlder featureVersion "11") || isBootstrap) {
                 enableGtk = false;
               }
             ))
@@ -66,6 +66,7 @@ in
       openjdk9 = mkOpenjdk "9" true;
       openjdk10 = mkOpenjdk "10" true;
       openjdk11 = mkOpenjdk "11" false;
+      openjdk12 = mkOpenjdk "12" true;
       openjdk17 = mkOpenjdk "17" false;
       openjdk21 = mkOpenjdk "21" false;
       openjdk25 = mkOpenjdk "25" false;

@@ -1,0 +1,36 @@
+diff --git i/src/hotspot/share/gc/shared/collectedHeap.cpp w/src/hotspot/share/gc/shared/collectedHeap.cpp
+index cb77b7ff55..a1907f8432 100644
+--- i/src/hotspot/share/gc/shared/collectedHeap.cpp
++++ w/src/hotspot/share/gc/shared/collectedHeap.cpp
+@@ -35,6 +35,7 @@
+ #include "gc/shared/gcVMOperations.hpp"
+ #include "gc/shared/gcWhen.hpp"
+ #include "gc/shared/memAllocator.hpp"
++#include "gc/shared/softRefPolicy.hpp"
+ #include "logging/log.hpp"
+ #include "memory/metaspace.hpp"
+ #include "memory/resourceArea.hpp"
+diff --git i/src/hotspot/share/gc/shared/genCollectedHeap.cpp w/src/hotspot/share/gc/shared/genCollectedHeap.cpp
+index 54df73fdcf..0362d650e8 100644
+--- i/src/hotspot/share/gc/shared/genCollectedHeap.cpp
++++ w/src/hotspot/share/gc/shared/genCollectedHeap.cpp
+@@ -32,6 +32,7 @@
+ #include "code/codeCache.hpp"
+ #include "code/icBuffer.hpp"
+ #include "gc/serial/defNewGeneration.hpp"
++#include "gc/serial/markSweep.hpp"
+ #include "gc/shared/adaptiveSizePolicy.hpp"
+ #include "gc/shared/cardTableBarrierSet.hpp"
+ #include "gc/shared/cardTableRS.hpp"
+diff --git i/src/hotspot/share/memory/metaspaceShared.cpp w/src/hotspot/share/memory/metaspaceShared.cpp
+index 1a998998d2..0c4c7f683c 100644
+--- i/src/hotspot/share/memory/metaspaceShared.cpp
++++ w/src/hotspot/share/memory/metaspaceShared.cpp
+@@ -36,6 +36,7 @@
+ #include "classfile/systemDictionary.hpp"
+ #include "classfile/systemDictionaryShared.hpp"
+ #include "code/codeCache.hpp"
++#include "gc/shared/softRefPolicy.hpp"
+ #include "interpreter/bytecodeStream.hpp"
+ #include "interpreter/bytecodes.hpp"
+ #include "logging/log.hpp"

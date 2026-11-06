@@ -70,7 +70,7 @@
       "8" = jdkBootstrapPackages.icedtea_7.__spliced.buildBuild or jdkBootstrapPackages.icedtea_7;
     }
     .${featureVersion} or (
-      if lib.versionOlder featureVersion "12" then
+      if lib.versionOlder featureVersion "13" then
         let
           bootstrapVer = toString ((lib.toInt featureVersion) - 1);
         in
@@ -182,6 +182,10 @@ let
     {
       "9" = baseJvmFeatures;
       "10" = baseJvmFeatures;
+      "12" = baseJvmFeatures ++ [
+        "-serialgc"
+        "parallelgc"
+      ];
     }
     .${featureVersion};
 in
@@ -261,7 +265,7 @@ stdenv.mkDerivation (finalAttrs: {
     libxrandr
     fontconfig
   ]
-  ++ lib.optionals (between "11" "21") [
+  ++ lib.optionals (is "11" || is "17") [
     harfbuzz
   ]
   ++ lib.optionals atLeast11 [
@@ -337,7 +341,7 @@ stdenv.mkDerivation (finalAttrs: {
         "--with-milestone=fcs"
       ]
   )
-  ++ lib.optionals (between "11" "21") [
+  ++ lib.optionals (is "11" || is "17") [
     "--with-freetype=system"
     "--with-harfbuzz=system"
   ]
@@ -346,7 +350,7 @@ stdenv.mkDerivation (finalAttrs: {
     "--with-libpng=system"
     "--with-lcms=system"
   ]
-  ++ lib.optionals (is "11") [
+  ++ lib.optionals (between "11" "13") [
     "--disable-warnings-as-errors"
   ]
   # OpenJDK 11 cannot be built by recent versions of Clang, as far as I can tell (see
@@ -390,7 +394,7 @@ stdenv.mkDerivation (finalAttrs: {
     # It goes into the java.base jmod, so jlink images also get it.
     # Like upstream, write a PKCS12 store without a password: the JDK opens
     # cacerts without one, and cannot read password-protected certificates.
-    + lib.optionalString atLeast11 ''
+    + lib.optionalString (atLeast11 && !isBootstrap) ''
       mkdir "$NIX_BUILD_TOP/cacerts-gen"
       pushd "$NIX_BUILD_TOP/cacerts-gen"
       JAVA_TOOL_OPTIONS="-Dkeystore.pkcs12.certProtectionAlgorithm=NONE -Dkeystore.pkcs12.macAlgorithm=NONE" \
@@ -461,6 +465,12 @@ stdenv.mkDerivation (finalAttrs: {
   // lib.optionalAttrs (!atLeast11) {
     # OpenJDK 8 Hotspot cares about the host(!) version otherwise
     DISABLE_HOTSPOT_OS_VERSION_CHECK = "ok";
+  }
+  // lib.optionalAttrs (isBootstrap && atLeast "12") {
+    CXXFLAGS = toString [
+      "-Wno-error"
+      "-Wno-error=template-id-cdtor"
+    ];
   };
 
   versionCheckProgram = lib.optionalString atLeast23 "${placeholder "out"}/bin/java";
